@@ -41,14 +41,12 @@ function teste2(e){
 	div.style.color = "white";
 	div.style.top = comecoy+"px";
 	div.style.left = comecox+"px";
-	div.style.position = "relative";
+	div.style.position = "absolute";
 
-
-	div.innerHTML = "Hello";
+	div.innerHTML = window.prompt("Nome do local selecionado","Hello");
 
 	document.getElementById('testediv').appendChild(div);
-	comecox = 0;
-	comecoy = 0;
+
 }
 
 function myFunction(e) {
