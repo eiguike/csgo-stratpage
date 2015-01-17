@@ -1,1 +1,67 @@
-My Page
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+div {
+
+    border: 1px solid black;
+    background-image: url(./maps/de_dust2.jpg);
+    width: 716px;
+    height: 788px;
+}
+
+</style>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+</head>
+<body>
+
+<div id="testediv" onmousemove="myFunction(event)" onmousedown="teste(event)" onmouseup="teste2(event)">
+</div>
+
+<p id="demo"></p>
+
+
+
+
+<script>
+function teste(e){
+	comecox = e.pageX - document.getElementById('testediv').offsetLeft;
+	comecoy = e.pageY - document.getElementById('testediv').offsetTop;
+}
+function teste2(e){
+	var fimx = e.pageX;
+	var fimy = e.pageY;
+	var tamanhox = fimx - comecox;
+	var tamanhoy = fimy - comecoy;
+
+	var div = document.createElement("div");
+	div.style.width = tamanhox+"px";
+	div.style.height = tamanhoy+"px";
+	div.style.background = "red";
+	div.style.color = "white";
+	div.style.top = comecoy+"px";
+	div.style.left = comecox+"px";
+	div.style.position = "relative";
+
+
+	div.innerHTML = "Hello";
+
+	document.getElementById('testediv').appendChild(div);
+
+	alert("CRIEI?");
+}
+
+function myFunction(e) {
+    var x = e.pageX - document.getElementById('testediv').offsetLeft;
+    var y = e.pageY - document.getElementById('testediv').offsetTop;
+    var coor = "Coordinates: (" + x + "," + y + ")";
+    document.getElementById("demo").innerHTML = coor;
+}
+
+function clearCoor() {
+    document.getElementById("demo").innerHTML = "";
+}
+</script>
+
+</body>
+</html>
