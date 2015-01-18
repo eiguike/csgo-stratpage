@@ -2,7 +2,12 @@
 <html>
 <head>
 <style>
-div {
+#testandoselecao{
+  border: 1px solid black;
+  width: 800px;
+  height: 600px;
+}
+#testediv{
 
     border: 1px solid black;
     background-image: url(./maps/de_dust2.jpg);
@@ -11,7 +16,7 @@ div {
 }
 
 </style>
-<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="./selecao.js"></script>
 </head>
 <body>
 
@@ -20,45 +25,56 @@ div {
 
 <p id="demo"></p>
 
+<div id="testandoselecao" onmousemove="animacao(event)" onmousedown="iniciaselecao(event)" onmouseup="finalizaselecao(event)">
+</div>
 
 
 
 <script>
+acumulador = 0;
 function teste(e){
-	comecox = e.pageX - document.getElementById('testediv').offsetLeft;
-	comecoy = e.pageY - document.getElementById('testediv').offsetTop;
+  comecox = e.pageX - document.getElementById('testediv').offsetLeft +"px";
+  comecoy = e.pageY - document.getElementById('testediv').offsetTop +"px";
+
+  var div = document.createElement("div");
+  div.style.left = comecox;
+  div.style.top = comecoy;
+  div.style.position = "absolute";
+  div.style.height = 2+"px";
+  div.style.width = 2+"px";
+  div.style.background = "red";
+  div.style.color = "white";
+  document.getElementById('testediv').appendChild(div);
+
+  div.id = "div"+acumulador;
+
+  flag = 1;
 }
 function teste2(e){
-	var fimx = e.pageX;
-	var fimy = e.pageY;
-	var tamanhox = fimx - comecox;
-	var tamanhoy = fimy - comecoy;
-
-	var div = document.createElement("div");
-	div.style.width = tamanhox+"px";
-	div.style.height = tamanhoy+"px";
-	div.style.background = "red";
-	div.style.color = "white";
-	div.style.top = comecoy+"px";
-	div.style.left = comecox+"px";
-	div.style.position = "absolute";
-
-	div.innerHTML = window.prompt("Nome do local selecionado","Hello");
-
-	document.getElementById('testediv').appendChild(div);
-
+  var div = document.getElementById('div'+acumulador);
+  flag = 0;
+  div.innerHTML = window.prompt("Nome da aréa selecionada:","Hello world");
+  acumulador = acumulador+1;
 }
 
 function myFunction(e) {
-    var x = e.pageX - document.getElementById('testediv').offsetLeft;
-    var y = e.pageY - document.getElementById('testediv').offsetTop;
-    var coor = "Coordinates: (" + x + "," + y + ")";
-    document.getElementById("demo").innerHTML = coor;
+  if(flag == 1){
+    var tamanhoy = e.pageX - parseInt(comecox);
+    var tamanhox = e.pageY - parseInt(comecoy);
+    var div = document.getElementById('div'+acumulador);
+
+    if(tamanhox < 0){
+      tamanhox *=-1;
+    }
+    if(tamanhoy < 0){
+      tamanhoy*=-1;
+    }
+    div.style.height = tamanhox+'px';
+    div.style.width = tamanhoy+'px';
+
+  }
 }
 
-function clearCoor() {
-    document.getElementById("demo").innerHTML = "";
-}
 </script>
 
 </body>
