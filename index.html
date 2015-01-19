@@ -1,5 +1,5 @@
-<!DOCTYPE html>
 <html>
+<!DOCTYPE html>
 <head>
 <style>
 #testandoselecao{
@@ -33,8 +33,8 @@
 <script>
 acumulador = 0;
 function teste(e){
-  comecox = e.pageX - document.getElementById('testediv').offsetLeft +"px";
-  comecoy = e.pageY - document.getElementById('testediv').offsetTop +"px";
+  comecox = 10 + e.pageX - document.getElementById('testediv').offsetLeft +"px";
+  comecoy = 10 + e.pageY - document.getElementById('testediv').offsetTop +"px";
 
   var div = document.createElement("div");
   div.style.left = comecox;
