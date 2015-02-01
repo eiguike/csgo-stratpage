@@ -106,11 +106,8 @@ function nomeAreaDiv(e){
   flag = 0;
   div.innerHTML = "<p id='"+acumulador+"'class='normal'>"+window.prompt("Nome da aréa selecionada:","Hello world")+"</p>";
   acumulador = acumulador+1;
-  alert($('#'+nomeID)[0].scrollWidth);
-  alert($('#'+nomeID).innerWidth());
   if ($('#'+nomeID)[0].scrollWidth >  $('#'+nomeID).innerWidth()) {
       $('#'+nomeID).find('p').attr('class','verticaltext');
-      $('#'+acumulador).width($('#'+nomeID)[0].scrollWidth);
   }
 }
 
