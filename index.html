@@ -15,49 +15,107 @@
     height: 788px;
 }
 
+.verticaltext {
+    -moz-transform: rotate(270deg);  /* FF3.5+ */
+    -o-transform: rotate(270deg);  /* Opera 10.5 */
+    -webkit-transform: rotate(-90deg);  /* Saf3.1+, Chrome */
+    -moz-transform-origin: 100% 100%;
+    -o-transform-origin: 100% 100%;
+    -webkit-transform-origin: 100% 100%;
+    position: relative; 
+}
+
 </style>
-<script src="./selecao.js"></script>
+<script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
 </head>
 <body>
 
-<div id="testediv" onmousemove="myFunction(event)" onmousedown="teste(event)" onmouseup="teste2(event)">
+<div id="testediv" onmousemove="calculoDesenhoArea(event,this)" onmousedown="desenhaDiv(event)" onmouseup="nomeAreaDiv(event)">
 </div>
+
+<table style="width:100%">
+  <tr>
+    <td><a href='javascript:toolSelInserirArea()'>Inserir Area</a></td>
+    <td><a href='javascript:toolSelRemoverArea()'>Remover Area</a></td>
+    <td>Flashbang</td>
+    <td>Smoke Grenade</td>
+  </tr>
+</table>
 
 <p id="demo"></p>
 
-<div id="testandoselecao" onmousemove="animacao(event)" onmousedown="iniciaselecao(event)" onmouseup="finalizaselecao(event)">
-</div>
-
-
-
 <script>
 acumulador = 0;
-function teste(e){
+
+
+
+// FUNÇÕES DE REMOÇÕES DE UMA DIV, OU ENTÃO,
+// UMA REMOÇÃO DE UMA ÁREA JA CRIADA NO MAPA
+function toolSelRemoverArea(){
+  document.getElementById("testediv").setAttribute('onmousemove', '');
+  document.getElementById("testediv").setAttribute('onmousedown', '');
+  document.getElementById("testediv").setAttribute('onmouseup', '');
+
+  var elems = document.getElementsByClassName('divVermelho');
+  for(var i = 0; i < elems.length; i++) {
+      elems[i].setAttribute('onmousedown','removerDiv(this)');
+  }
+}
+
+function removerDiv(divID){
+  document.getElementById(divID.id).remove();
+}
+
+// funções de inserir uma div, ou 
+// então, uma área no mapa.
+function toolSelInserirArea(){
+  document.getElementById("testediv").setAttribute('onmousemove', 'calculoDesenhoArea(event,this)');
+  document.getElementById("testediv").setAttribute('onmousedown', 'desenhaDiv(event)');
+  document.getElementById("testediv").setAttribute('onmouseup', 'nomeAreaDiv(event)');
+
+  var elems = document.getElementsByClassName('divVermelho');
+  for(var i = 0; i < elems.length; i++) {
+      elems[i].setAttribute('onmousedown','');
+  }
+}
+
+function desenhaDiv(e){
   comecox = 10 + e.pageX - document.getElementById('testediv').offsetLeft +"px";
   comecoy = 10 + e.pageY - document.getElementById('testediv').offsetTop +"px";
 
   var div = document.createElement("div");
+  div.setAttribute('class','divVermelho');
   div.style.left = comecox;
   div.style.top = comecoy;
   div.style.position = "absolute";
   div.style.height = 2+"px";
   div.style.width = 2+"px";
+  div.style.opacity = 0.6;
   div.style.background = "red";
   div.style.color = "white";
+
   document.getElementById('testediv').appendChild(div);
 
   div.id = "div"+acumulador;
 
   flag = 1;
 }
-function teste2(e){
+function nomeAreaDiv(e){
   var div = document.getElementById('div'+acumulador);
+  var nomeID = "div"+acumulador;
   flag = 0;
-  div.innerHTML = window.prompt("Nome da aréa selecionada:","Hello world");
+  div.innerHTML = "<p id='"+acumulador+"'class='normal'>"+window.prompt("Nome da aréa selecionada:","Hello world")+"</p>";
   acumulador = acumulador+1;
+  alert($('#'+nomeID)[0].scrollWidth);
+  alert($('#'+nomeID).innerWidth());
+  if ($('#'+nomeID)[0].scrollWidth >  $('#'+nomeID).innerWidth()) {
+      $('#'+nomeID).find('p').attr('class','verticaltext');
+      $('#'+acumulador).width($('#'+nomeID)[0].scrollWidth);
+  }
 }
 
-function myFunction(e) {
+function calculoDesenhoArea(e,divID) {
+  document.getElementById(divID.id).style.cursor = "crosshair";
   if(flag == 1){
     var tamanhoy = e.pageX - parseInt(comecox);
     var tamanhox = e.pageY - parseInt(comecoy);
