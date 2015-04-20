@@ -37,7 +37,7 @@
   <tr>
     <td><a href='javascript:toolSelInserirArea()'>Inserir Area</a></td>
     <td><a href='javascript:toolSelRemoverArea()'>Remover Area</a></td>
-    <td>Flashbang</td>
+    <td><a href='javascript:toolInsFlashbang()'>Flashbang</a></td>
     <td>Smoke Grenade</td>
   </tr>
 </table>
@@ -46,6 +46,43 @@
 
 <script>
 acumulador = 0;
+
+function toolInsFlashbang(){
+  document.getElementById("testediv").setAttribute('onmousemove', '');
+  document.getElementById("testediv").setAttribute('onmouseup', 'desenhaFlashbang2(event)');
+  document.getElementById("testediv").setAttribute('onmousedown', 'desenhaFlashbang(event)');
+}
+
+function desenhaFlashbang2(e){
+  comecox = e.pageX - document.getElementById('testediv').offsetLeft +"px";
+  comecoy = e.pageY - document.getElementById('testediv').offsetTop +"px";
+
+  var img = document.createElement("img");
+  img.src = './icons/flashbang_explosion.png';
+  img.setAttribute('alt','Flashbang');
+  img.style.position = "absolute";
+  img.style.left = comecox;
+  img.style.top = comecoy;
+
+  document.getElementById('testediv').appendChild(img);
+
+}
+
+
+function desenhaFlashbang(e){
+  comecox = e.pageX - document.getElementById('testediv').offsetLeft +"px";
+  comecoy = e.pageY - document.getElementById('testediv').offsetTop +"px";
+
+  var img = document.createElement("img");
+  img.src = './icons/flashbang.png';
+  img.setAttribute('alt','Flashbang');
+  img.style.position = "absolute";
+  img.style.left = comecox;
+  img.style.top = comecoy;
+
+  document.getElementById('testediv').appendChild(img);
+
+}
 
 
 
@@ -100,6 +137,7 @@ function desenhaDiv(e){
 
   flag = 1;
 }
+
 function nomeAreaDiv(e){
   var div = document.getElementById('div'+acumulador);
   var nomeID = "div"+acumulador;

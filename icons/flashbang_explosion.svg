@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg3055"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   width="626"
+   height="626"
+   sodipodi:docname="flashbang_explosion.png">
+  <metadata
+     id="metadata3061">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs3059" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1440"
+     inkscape:window-height="851"
+     id="namedview3057"
+     showgrid="false"
+     inkscape:zoom="0.36033077"
+     inkscape:cx="-452.04319"
+     inkscape:cy="-172.06736"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg3055" />
+  <path
+     sodipodi:type="star"
+     style="fill:#ffffff;fill-rule:evenodd;stroke:#000000;stroke-width:3.48993945;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+     id="path3065"
+     sodipodi:sides="10"
+     sodipodi:cx="152.29063"
+     sodipodi:cy="282.91245"
+     sodipodi:r1="45.145458"
+     sodipodi:r2="30.698912"
+     sodipodi:arg1="0.80713387"
+     sodipodi:arg2="1.1212931"
+     inkscape:flatsided="false"
+     inkscape:rounded="-3.469447e-18"
+     inkscape:randomized="0"
+     d="m 183.51195,315.52137 -17.88208,-4.95955 -7.24771,17.08323 -11.55175,-14.52318 -15.90479,9.56052 -0.80905,-18.53945 -18.48678,-1.61397 10.24267,-15.47429 -14.00744,-12.17198 17.38205,-6.49846 -4.17775,-18.08072 17.88208,4.95955 7.24771,-17.08323 11.55175,14.52318 15.90479,-9.56052 0.80905,18.53945 18.48678,1.61397 -10.24268,15.47429 14.00745,12.17198 -17.38205,6.49846 z"
+     inkscape:transform-center-x="12.319759"
+     inkscape:transform-center-y="-14.880656"
+     transform="matrix(6.5446036,0,0,5.9970367,-681.94847,-1383.9212)"
+     inkscape:export-filename="/home/floss/Documents/git/csgo-stratpage/icons/flashbang_explosion.png"
+     inkscape:export-xdpi="90"
+     inkscape:export-ydpi="90" />
+  <path
+     sodipodi:type="star"
+     style="fill:#000000;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     id="path3065-2"
+     sodipodi:sides="10"
+     sodipodi:cx="152.29063"
+     sodipodi:cy="282.91245"
+     sodipodi:r1="45.145458"
+     sodipodi:r2="30.698912"
+     sodipodi:arg1="0.80713387"
+     sodipodi:arg2="1.1212931"
+     inkscape:flatsided="false"
+     inkscape:rounded="-3.469447e-18"
+     inkscape:randomized="0"
+     d="m 183.51195,315.52137 -17.88208,-4.95955 -7.24771,17.08323 -11.55175,-14.52318 -15.90479,9.56052 -0.80905,-18.53945 -18.48678,-1.61397 10.24267,-15.47429 -14.00744,-12.17198 17.38205,-6.49846 -4.17775,-18.08072 17.88208,4.95955 7.24771,-17.08323 11.55175,14.52318 15.90479,-9.56052 0.80905,18.53945 18.48678,1.61397 -10.24268,15.47429 14.00745,12.17198 -17.38205,6.49846 z"
+     inkscape:transform-center-x="8.8589892"
+     inkscape:transform-center-y="-10.700408"
+     transform="matrix(4.7061482,0,0,4.3123992,-396.75966,-905.2217)" />
+</svg>
