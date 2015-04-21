@@ -7,12 +7,17 @@
   width: 800px;
   height: 600px;
 }
-#testediv{
-
+.mapa{
     border: 1px solid black;
-    background-image: url(./maps/de_dust2.jpg);
+    /*background-image: url(./maps/de_dust2.jpg); */
     width: 716px;
     height: 788px;
+    position: absolute;
+}
+
+#canvasteste{
+  z-index: 100000;
+  position: absolute;
 }
 
 .verticaltext {
@@ -30,22 +35,69 @@
 </head>
 <body>
 
-<div id="testediv" onmousemove="calculoDesenhoArea(event,this)" onmousedown="desenhaDiv(event)" onmouseup="nomeAreaDiv(event)">
-</div>
+  <div class="mapa" id="testediv" onmousemove="calculoDesenhoArea(event,this)" onmousedown="desenhaDiv(event)" onmouseup="nomeAreaDiv(event)">
+<canvas id="canvasteste">
+</canvas>
+ </div>
+
+  <div id="posicao">
+  </div>
 
 <table style="width:100%">
   <tr>
     <td><a href='javascript:toolSelInserirArea()'>Inserir Area</a></td>
     <td><a href='javascript:toolSelRemoverArea()'>Remover Area</a></td>
     <td><a href='javascript:toolInsFlashbang()'>Flashbang</a></td>
-    <td>Smoke Grenade</td>
   </tr>
 </table>
 
+    <p id="haha">Smoke Grenade</p>
+    <p id="haha2">Smoke Grenade</p>
 <p id="demo"></p>
 
 <script>
 acumulador = 0;
+
+window.onload = line;
+canvas = document.getElementById("canvasteste");
+canvas.width = 712;
+canvas.height = 788;
+
+var startX, startY, canvas, context, isMouseDown = false;
+
+function line() {
+    canvas = document.getElementById("canvasteste");
+    context = canvas.getContext("2d");
+    canvas.onmousedown = startLine;
+    canvas.onmouseup = canvas.onmouseout = stopLine;
+    canvas.onmousemove = drawLine;
+};
+
+function startLine(e) {
+    isMouseDown = true;
+    context.beginPath();
+    context.moveTo(startX = (e.pageX - canvas.offsetLeft),
+    startY = (e.pageY - canvas.offsetTop));
+}
+
+function drawLine(e) {
+    if (isMouseDown) {
+        var x = e.pageX - canvas.offsetLeft;
+        var y = e.pageY - canvas.offsetTop;
+        context.clearRect(0, 0, 716,788);
+        context.setLineDash([5,5]);
+        context.beginPath();
+        context.moveTo(startX, startY);
+        context.lineTo(x, y);
+        context.stroke();
+        context.closePath();
+    }
+}
+
+function stopLine() {
+    isMouseDown = false;
+}
+
 
 function toolInsFlashbang(){
   document.getElementById("testediv").setAttribute('onmousemove', '');
@@ -65,13 +117,15 @@ function desenhaFlashbang2(e){
   img.style.top = comecoy;
 
   document.getElementById('testediv').appendChild(img);
-
 }
+
 
 
 function desenhaFlashbang(e){
   comecox = e.pageX - document.getElementById('testediv').offsetLeft +"px";
   comecoy = e.pageY - document.getElementById('testediv').offsetTop +"px";
+  referenciax = comecox;
+  referenciay = comecoy;
 
   var img = document.createElement("img");
   img.src = './icons/flashbang.png';
@@ -81,7 +135,6 @@ function desenhaFlashbang(e){
   img.style.top = comecoy;
 
   document.getElementById('testediv').appendChild(img);
-
 }
 
 
