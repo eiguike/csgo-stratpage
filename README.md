@@ -10,3 +10,6 @@ Apenas utilizo Javascript com o intuito de aprender a linguagem.
 - Salvar/Carregar areas dos mapas;
 - Melhorar a forma de inserir as flashs/smokes;
 - Melhorar o canvas que cria o tracejado das granadas;
+
+---
+[Código baseado](http://simonsarris.com/blog/510-making-html5-canvas-useful)
