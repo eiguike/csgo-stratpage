@@ -1,227 +1,327 @@
 <html>
 <!DOCTYPE html>
 <head>
-<style>
-#testandoselecao{
-  border: 1px solid black;
-  width: 800px;
-  height: 600px;
-}
-.mapa{
-    border: 1px solid black;
-    /*background-image: url(./maps/de_dust2.jpg); */
-    width: 716px;
-    height: 788px;
-    position: absolute;
-}
-
-#canvasteste{
-  z-index: 100000;
-  position: absolute;
-}
-
-.verticaltext {
-    -moz-transform: rotate(270deg);  /* FF3.5+ */
-    -o-transform: rotate(270deg);  /* Opera 10.5 */
-    -webkit-transform: rotate(-90deg);  /* Saf3.1+, Chrome */
-    -moz-transform-origin: 100% 100%;
-    -o-transform-origin: 100% 100%;
-    -webkit-transform-origin: 100% 100%;
-    position: relative; 
-}
-
-</style>
-<script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+  <style>
+    #canvas { background:url(./maps/de_dust2.jpg) }
+  </style>
+  <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
 </head>
 <body>
+  <p id="mudar1">hahah</p>
+  <p id="mudar2">hahahah2</p>
+  <canvas id="canvas" width="800" height="800">
+    Se você esta vendo esse texto, sinto lhe dizer mas seu browser não suporta canvas!
+  </canvas>
 
-  <div class="mapa" id="testediv" onmousemove="calculoDesenhoArea(event,this)" onmousedown="desenhaDiv(event)" onmouseup="nomeAreaDiv(event)">
-<canvas id="canvasteste">
-</canvas>
- </div>
-
-  <div id="posicao">
-  </div>
-
-<table style="width:100%">
-  <tr>
-    <td><a href='javascript:toolSelInserirArea()'>Inserir Area</a></td>
-    <td><a href='javascript:toolSelRemoverArea()'>Remover Area</a></td>
-    <td><a href='javascript:toolInsFlashbang()'>Flashbang</a></td>
-  </tr>
-</table>
-
-    <p id="haha">Smoke Grenade</p>
-    <p id="haha2">Smoke Grenade</p>
-<p id="demo"></p>
+  
+</body>
 
 <script>
-acumulador = 0;
 
-window.onload = line;
-canvas = document.getElementById("canvasteste");
-canvas.width = 712;
-canvas.height = 788;
+  selectionHandle = [];
 
-var startX, startY, canvas, context, isMouseDown = false;
-
-function line() {
-    canvas = document.getElementById("canvasteste");
-    context = canvas.getContext("2d");
-    canvas.onmousedown = startLine;
-    canvas.onmouseup = canvas.onmouseout = stopLine;
-    canvas.onmousemove = drawLine;
-};
-
-function startLine(e) {
-    isMouseDown = true;
-    context.beginPath();
-    context.moveTo(startX = (e.pageX - canvas.offsetLeft),
-    startY = (e.pageY - canvas.offsetTop));
+function Shape(x, y, w, h, fill, text) {
+  // This is a very simple and unsafe constructor. All we're doing is checking if the values exist.
+  // "x || 0" just means "if there is a value for x, use that. Otherwise use 0."
+  // But we aren't checking anything else! We could put "Lalala" for the value of x 
+  this.x = x || 0;
+  this.y = y || 0;
+  this.w = w || 1;
+  this.h = h || 1;
+  this.fill = fill || '#AAAAAA';
+  this.text = text || 'nada';
 }
 
-function drawLine(e) {
-    if (isMouseDown) {
-        var x = e.pageX - canvas.offsetLeft;
-        var y = e.pageY - canvas.offsetTop;
-        context.clearRect(0, 0, 716,788);
-        context.setLineDash([5,5]);
-        context.beginPath();
-        context.moveTo(startX, startY);
-        context.lineTo(x, y);
-        context.stroke();
-        context.closePath();
+// Draws this shape to a given context
+Shape.prototype.draw = function(ctx) {
+  ctx.fillStyle = this.fill;
+  ctx.fillRect(this.x, this.y, this.w, this.h);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillText(this.text,this.x, this.y+(this.h)/2);
+}
+
+// Determine if a point is inside the shape's bounds
+Shape.prototype.contains = function(mx, my) {
+  // All we have to do is make sure the Mouse X,Y fall in the area between
+  // the shape's X and (X + Width) and its Y and (Y + Height)
+  return  (this.x <= mx) && (this.x + this.w >= mx) &&
+  (this.y <= my) && (this.y + this.h >= my);
+}
+
+function CanvasState(canvas) {
+  // **** First some setup! ****
+  
+  this.canvas = canvas;
+  this.width = canvas.width;
+  this.height = canvas.height;
+  this.ctx = canvas.getContext('2d');
+  // This complicates things a little but but fixes mouse co-ordinate problems
+  // when there's a border or padding. See getMouse for more detail
+  var stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop;
+  if (document.defaultView && document.defaultView.getComputedStyle) {
+    this.stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10)      || 0;
+    this.stylePaddingTop  = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10)       || 0;
+    this.styleBorderLeft  = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10)  || 0;
+    this.styleBorderTop   = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10)   || 0;
+  }
+  // Some pages have fixed-position bars (like the stumbleupon bar) at the top or left of the page
+  // They will mess up mouse coordinates and this fixes that
+  var html = document.body.parentNode;
+  this.htmlTop = html.offsetTop;
+  this.htmlLeft = html.offsetLeft;
+
+  // **** Keep track of state! ****
+  
+  this.valid = false; // when set to false, the canvas will redraw everything
+  this.shapes = [];  // the collection of things to be drawn
+  this.dragging = false; // Keep track of when we are dragginga
+  // the current selected object. In the future we could turn this into an array for multiple selection
+
+
+  this.resizing = false;
+
+
+  this.selection = null;
+  this.dragoffx = 0; // See mousedown and mousemove events for explanation
+  this.dragoffy = 0;
+
+  // **** Then events! ****
+  
+  // This is an example of a closure!
+  // Right here "this" means the CanvasState. But we are making events on the Canvas itself,
+  // and when the events are fired on the canvas the variable "this" is going to mean the canvas!
+  // Since we still want to use this particular CanvasState in the events we have to save a reference to it.
+  // This is our reference!
+  var myState = this;
+  
+  //fixes a problem where double clicking causes text to get selected on the canvas
+  canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return false; }, false);
+  // Up, down, and move are for dragging
+
+  canvas.addEventListener('mousedown', function(e) {
+    var mouse = myState.getMouse(e);
+    var mx = mouse.x;
+    var my = mouse.y;
+    var shapes = myState.shapes;
+    var l = shapes.length;
+    for (var i = l-1; i >= 0; i--) {
+      if (shapes[i].contains(mx, my)) {
+        // tem que ter um if aqui pra identificar quando
+        // é necessário modifica ro tamanho do quadrado
+        var mySel = shapes[i];
+        // Keep track of where in the object we clicked
+        // so we can move it smoothly (see mousemove)
+        myState.dragoffx = mx - mySel.x;
+        myState.dragoffy = my - mySel.y;
+        myState.dragging = true;
+        myState.selection = mySel;
+        myState.valid = false;
+
+
+        return;
+      }
     }
-}
-
-function stopLine() {
-    isMouseDown = false;
-}
-
-
-function toolInsFlashbang(){
-  document.getElementById("testediv").setAttribute('onmousemove', '');
-  document.getElementById("testediv").setAttribute('onmouseup', 'desenhaFlashbang2(event)');
-  document.getElementById("testediv").setAttribute('onmousedown', 'desenhaFlashbang(event)');
-}
-
-function desenhaFlashbang2(e){
-  comecox = e.pageX - document.getElementById('testediv').offsetLeft +"px";
-  comecoy = e.pageY - document.getElementById('testediv').offsetTop +"px";
-
-  var img = document.createElement("img");
-  img.src = './icons/flashbang_explosion.png';
-  img.setAttribute('alt','Flashbang');
-  img.style.position = "absolute";
-  img.style.left = comecox;
-  img.style.top = comecoy;
-
-  document.getElementById('testediv').appendChild(img);
-}
-
-
-
-function desenhaFlashbang(e){
-  comecox = e.pageX - document.getElementById('testediv').offsetLeft +"px";
-  comecoy = e.pageY - document.getElementById('testediv').offsetTop +"px";
-  referenciax = comecox;
-  referenciay = comecoy;
-
-  var img = document.createElement("img");
-  img.src = './icons/flashbang.png';
-  img.setAttribute('alt','Flashbang');
-  img.style.position = "absolute";
-  img.style.left = comecox;
-  img.style.top = comecoy;
-
-  document.getElementById('testediv').appendChild(img);
-}
-
-
-
-// FUNÇÕES DE REMOÇÕES DE UMA DIV, OU ENTÃO,
-// UMA REMOÇÃO DE UMA ÁREA JA CRIADA NO MAPA
-function toolSelRemoverArea(){
-  document.getElementById("testediv").setAttribute('onmousemove', '');
-  document.getElementById("testediv").setAttribute('onmousedown', '');
-  document.getElementById("testediv").setAttribute('onmouseup', '');
-
-  var elems = document.getElementsByClassName('divVermelho');
-  for(var i = 0; i < elems.length; i++) {
-      elems[i].setAttribute('onmousedown','removerDiv(this)');
-  }
-}
-
-function removerDiv(divID){
-  document.getElementById(divID.id).remove();
-}
-
-// funções de inserir uma div, ou 
-// então, uma área no mapa.
-function toolSelInserirArea(){
-  document.getElementById("testediv").setAttribute('onmousemove', 'calculoDesenhoArea(event,this)');
-  document.getElementById("testediv").setAttribute('onmousedown', 'desenhaDiv(event)');
-  document.getElementById("testediv").setAttribute('onmouseup', 'nomeAreaDiv(event)');
-
-  var elems = document.getElementsByClassName('divVermelho');
-  for(var i = 0; i < elems.length; i++) {
-      elems[i].setAttribute('onmousedown','');
-  }
-}
-
-function desenhaDiv(e){
-  comecox = 10 + e.pageX - document.getElementById('testediv').offsetLeft +"px";
-  comecoy = 10 + e.pageY - document.getElementById('testediv').offsetTop +"px";
-
-  var div = document.createElement("div");
-  div.setAttribute('class','divVermelho');
-  div.style.left = comecox;
-  div.style.top = comecoy;
-  div.style.position = "absolute";
-  div.style.height = 2+"px";
-  div.style.width = 2+"px";
-  div.style.opacity = 0.6;
-  div.style.background = "red";
-  div.style.color = "white";
-
-  document.getElementById('testediv').appendChild(div);
-
-  div.id = "div"+acumulador;
-
-  flag = 1;
-}
-
-function nomeAreaDiv(e){
-  var div = document.getElementById('div'+acumulador);
-  var nomeID = "div"+acumulador;
-  flag = 0;
-  div.innerHTML = "<p id='"+acumulador+"'class='normal'>"+window.prompt("Nome da aréa selecionada:","Hello world")+"</p>";
-  acumulador = acumulador+1;
-  if ($('#'+nomeID)[0].scrollWidth >  $('#'+nomeID).innerWidth()) {
-      $('#'+nomeID).find('p').attr('class','verticaltext');
-  }
-}
-
-function calculoDesenhoArea(e,divID) {
-  document.getElementById(divID.id).style.cursor = "crosshair";
-  if(flag == 1){
-    var tamanhoy = e.pageX - parseInt(comecox);
-    var tamanhox = e.pageY - parseInt(comecoy);
-    var div = document.getElementById('div'+acumulador);
-
-    if(tamanhox < 0){
-      tamanhox *=-1;
+    // havent returned means we have failed to select anything.
+    // If there was an object selected, we deselect it
+    if (myState.selection) {
+      myState.selection = null;
+      myState.valid = false; // Need to clear the old selection border
     }
-    if(tamanhoy < 0){
-      tamanhoy*=-1;
+  }, true);
+  canvas.addEventListener('mousemove', function(e) {
+    if (myState.dragging){
+      var mouse = myState.getMouse(e);
+      // We don't want to drag the object by its top-left corner, we want to drag it
+      // from where we clicked. Thats why we saved the offset and use it here
+      myState.selection.x = mouse.x - myState.dragoffx;
+      myState.selection.y = mouse.y - myState.dragoffy;   
+      myState.valid = false; // Something's dragging so we must redraw
     }
-    div.style.height = tamanhox+'px';
-    div.style.width = tamanhoy+'px';
+    if (myState.selection !== null){
+     var mouse = myState.getMouse(e);
+     mx = mouse.x;
+     my = mouse.y;
+     // mudando document
+     document.getElementById('mudar2').innerHTML = mx +"mx "+my+"my";        
+     for(var i2=0;i2<3;i2++){
+      var cur = selectionHandle[i2];
+      if (mx >= cur.x -2 && mx <= cur.x + 3 &&
+          my >= cur.y -2 && my<= cur.y + 3){
+        switch (i2) {
+          case 0:
+          this.style.cursor='nw-resize';
+          document.getElementById('mudar2').innerHTML = "first "+mx +"mx "+my+"my "+ cur.x+ "curx " + cur.y + "cury ";
+          break;
+          case 1:
+          this.style.cursor='n-resize';
+          document.getElementById('mudar2').innerHTML = "second "+mx +"mx "+my+"my "+ cur.x+ "curx " + cur.y + "cury ";
+          break;
+          case 2:
+          this.style.cursor='ne-resize';
+          document.getElementById('mudar2').innerHTML = "third "+mx +"mx "+my+"my "+ cur.x+ "curx " + cur.y + "cury ";
+          break;
+          case 3:
+          this.style.cursor='w-resize';
+          document.getElementById('mudar2').innerHTML = "quarto "+mx +"mx "+my+"my "+ cur.x+ "curx " + cur.y + "cury ";
+          break;
+          case 4:
+          this.style.cursor='e-resize';
+          document.getElementById('mudar2').innerHTML = "quinto "+mx +"mx "+my+"my "+ cur.x+ "curx " + cur.y + "cury ";
+          break;
+          case 5:
+          this.style.cursor='sw-resize';
+          document.getElementById('mudar2').innerHTML = "sexto "+mx +"mx "+my+"my "+ cur.x+ "curx " + cur.y + "cury ";
+          break;
+          case 6:
+          this.style.cursor='s-resize';
+          document.getElementById('mudar2').innerHTML = "setimo "+mx +"mx "+my+"my "+ cur.x+ "curx " + cur.y + "cury ";
+          break;
+          case 7:
+          this.style.cursor='se-resize';
+          document.getElementById('mudar2').innerHTML = "oitvao "+mx +"mx "+my+"my "+ cur.x+ "curx " + cur.y + "cury ";
+          break;
+        }
+        break;
+      }else{
+            this.style.cursor='auto';
+      }
+    }
+  }
 
+
+}, true);
+canvas.addEventListener('mouseup', function(e) {
+  myState.dragging = false;
+}, true);
+  // double click for making new shapes
+  canvas.addEventListener('dblclick', function(e) {
+    var mouse = myState.getMouse(e);
+    myState.addShape(new Shape(mouse.x - 10, mouse.y - 10, 20, 20, 'rgba(0,255,0,.6)'));
+  }, true);
+  
+  // **** Options! ****
+  
+  this.selectionColor = '#CC0000';
+  this.selectionWidth = 2;  
+  this.interval = 30;
+  setInterval(function() { myState.draw(); }, myState.interval);
+}
+
+CanvasState.prototype.addShape = function(shape) {
+  this.shapes.push(shape);
+  this.valid = false;
+}
+
+CanvasState.prototype.clear = function() {
+  this.ctx.clearRect(0, 0, this.width, this.height);
+}
+
+// While draw is called as often as the INTERVAL variable demands,
+// It only ever does something if the canvas gets invalidated by our code
+CanvasState.prototype.draw = function() {
+  // if our state is invalid, redraw and validate!
+  if (!this.valid) {
+    var ctx = this.ctx;
+    var shapes = this.shapes;
+    this.clear();
+    
+    // ** Add stuff you want drawn in the background all the time here **
+    
+    // draw all shapes
+    var l = shapes.length;
+    for (var i = 0; i < l; i++) {
+      var shape = shapes[i];
+      // We can skip the drawing of elements that have moved off the screen:
+      if (shape.x > this.width || shape.y > this.height ||
+        shape.x + shape.w < 0 || shape.y + shape.h < 0) continue;
+        shapes[i].draw(ctx);
+    }
+    
+    // draw selection
+    // right now this is just a stroke along the edge of the selected Shape
+    if (this.selection != null) {
+      ctx.strokeStyle = this.selectionColor;
+      ctx.lineWidth = this.selectionWidth;
+      var mySel = this.selection;
+      ctx.strokeRect(mySel.x,mySel.y,mySel.w,mySel.h);
+
+
+      // BOXEDS ARE DRAWING HERE
+      ctx.fillStyle = '#CC0000';
+      // upper boxes (left, middle and right)
+      ctx.fillRect(mySel.x-4, mySel.y-4, 6, 6);
+      ctx.fillRect(mySel.x+(mySel.w/2)-2, mySel.y-4, 6, 6);
+      ctx.fillRect(mySel.x+mySel.w-2, mySel.y-4, 6, 6);
+
+      // middle boxes (left and right)
+      ctx.fillRect(mySel.x-4, mySel.y-4+(mySel.h/2), 6, 6);
+      ctx.fillRect(mySel.x+mySel.w-2, mySel.y-4+(mySel.h/2), 6, 6);
+
+      //lower boxes (left,middle and right)
+      ctx.fillRect(mySel.x-4, mySel.y-4+(mySel.h), 6, 6);
+      ctx.fillRect(mySel.x+(mySel.w/2)-2, mySel.y-4+(mySel.h), 6, 6);
+      ctx.fillRect(mySel.x+mySel.w-2, mySel.y-4+(mySel.h), 6, 6);
+
+      selectionHandle[0].x = mySel.x-4 + 3;
+      selectionHandle[0].y = mySel.y-4 + 3;
+
+      selectionHandle[1].x = mySel.x+mySel.w/2;
+      selectionHandle[1].y = mySel.y - 3;
+
+      selectionHandle[2].x = mySel.x+mySel.w + 3;
+      selectionHandle[2].y = mySel.y -3 ;
+    }
+    
+    // ** Add stuff you want drawn on top all the time here **
+    
+    this.valid = true;
   }
 }
+
+
+// Creates an object with x and y defined, set to the mouse position relative to the state's canvas
+// If you wanna be super-correct this can be tricky, we have to worry about padding and borders
+CanvasState.prototype.getMouse = function(e) {
+  var element = this.canvas, offsetX = 0, offsetY = 0, mx, my;
+
+  
+  // Compute the total offset
+  if (element.offsetParent !== undefined) {
+    do {
+      offsetX += element.offsetLeft;
+      offsetY += element.offsetTop;
+    } while ((element = element.offsetParent));
+  }
+
+  // Add padding and border style widths to offset
+  // Also add the <html> offsets in case there's a position:fixed bar
+  offsetX += this.stylePaddingLeft + this.styleBorderLeft + this.htmlLeft;
+  offsetY += this.stylePaddingTop + this.styleBorderTop + this.htmlTop;
+
+  mx = e.pageX - offsetX;
+  my = e.pageY - offsetY;
+  // mudando document
+  document.getElementById('mudar1').innerHTML = mx +"x "+my;  
+  // We return a simple javascript object (a hash) with x and y defined
+  return {x: mx, y: my};
+}
+
+// If you dont want to use <body onLoad='init()'>
+// You could uncomment this init() reference and place the script reference inside the body tag
+//init();
+
+var s = new CanvasState(document.getElementById('canvas'));
+for(var i2 = 0;i2<8;i2++){
+  var rect = new Shape;
+  selectionHandle.push(rect);
+}
+  s.addShape(new Shape(40,40,50,50)); // The default is gray
+  s.addShape(new Shape(60,140,40,60, 'lightskyblue'));
+  // Lets make some partially transparent
+  s.addShape(new Shape(80,150,60,30, 'rgba(127, 255, 212, .5)'));
+  s.addShape(new Shape(125,80,30,80, 'rgba(245, 222, 179, .7)'));
+
+// Now go make something amazing!
 
 </script>
-
-</body>
 </html>
